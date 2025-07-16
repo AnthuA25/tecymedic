@@ -1,10 +1,14 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document } from "mongoose";
+import { v4 as uuidv4 } from 'uuid';
 
 export type PatientDocument = Patient & Document;
-
-@Schema()
+//TODO: Agregar @Prop de eliminacion logica
+@Schema({ versionKey: false })
 export class Patient {
+    @Prop({ type: String, default: uuidv4, select: false })
+    _id: string;
+
     @Prop({ required: true })
     name: string;
 
@@ -23,13 +27,13 @@ export class Patient {
     @Prop()
     phone: string;
 
-    @Prop()
+    @Prop({unique: true})
     code: string;
 
     @Prop({ required: true, unique: true })
     username: string;
 
-    @Prop({required: true, select: false})
+    @Prop({ required: true, select: false })
     password: string;
 
     @Prop({ default: () => Date.now() })
