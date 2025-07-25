@@ -1,6 +1,6 @@
+//TODO: Refactorizar el select.
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
-// import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Doctor } from './entities/doctor.entity';
 import { Repository } from 'typeorm';
@@ -11,7 +11,7 @@ export class DoctorsService {
   private readonly logger = new Logger(DoctorsService.name);
 
   constructor(@InjectRepository(Doctor) private readonly doctorRepository: Repository<Doctor>) { }
-  async create(createDoctorDto: CreateDoctorDto) {
+  async create(createDoctorDto: CreateDoctorDto): Promise<string> {
     try {
       const doctor = this.doctorRepository.create({
         ...createDoctorDto,
@@ -19,27 +19,19 @@ export class DoctorsService {
       });
       const result = await this.doctorRepository.save(doctor);
 
-      return {
-        success: true,
-        message: 'Doctor created successfully',
-        doctor_code: result.code,
-      }
+      return result.code;
     } catch (error) {
       this.logger.error(error.message);
       throw new BadRequestException(error.message);
     }
   }
 
-  async findAll() {
+  async findAll(): Promise<Doctor[]> {
     try {
-      const doctor = await this.doctorRepository.find({
+      const doctors = await this.doctorRepository.find({
         select: ['name', 'last_name', 'speciality', 'license', 'email', 'code', 'created_at', 'updated_at', 'status'], //TODO: Buscar solución para que no nuestra el ID desde la entidad.
       });
-      return {
-        success: true,
-        message: 'Doctors retrieved successfully',
-        doctors: doctor,
-      }
+      return doctors;
     } catch (error) {
       this.logger.error(error.message);
       throw new NotFoundException(error.message);
@@ -53,10 +45,12 @@ export class DoctorsService {
         select: ['name', 'last_name', 'speciality', 'license', 'email', 'code', 'created_at', 'updated_at', 'status'], //TODO: Buscar solución para que no nuestra el ID desde la entidad.
       });
 
-      return {
-        success: true,
-        doctor
-      };
+      if (!doctor) {
+        //TODO: Crear exception personalizada.
+        throw new NotFoundException(`Doctor code ${code} not found`);
+      }
+
+      return doctor;
     } catch (error) {
       this.logger.error(error.message);
       throw new NotFoundException(error.message);

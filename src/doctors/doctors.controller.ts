@@ -8,17 +8,33 @@ export class DoctorsController {
 
   @Post()
   @UsePipes(new ValidationPipe())
-  create(@Body() createDoctorDto: CreateDoctorDto) {
-    return this.doctorsService.create(createDoctorDto);
+  async create(@Body() createDoctorDto: CreateDoctorDto) {
+    const result = await this.doctorsService.create(createDoctorDto);
+
+    return {
+      success: true,
+      message: 'Doctor created successfully',
+      doctor_code: result,
+    };
   }
 
   @Get()
-  findAll() {
-    return this.doctorsService.findAll();
+  async findAll() {
+    const result = await this.doctorsService.findAll();
+
+    return {
+      success: true,
+      doctors: result,
+    };
   }
 
   @Get(':code')
-  findCode(@Param('code') code: string) {
-    return this.doctorsService. findCode(code);
+  async findCode(@Param('code') code: string) {
+    const result = await this.doctorsService.findCode(code);
+
+    return {
+      success: true,
+      doctor: result,
+    };
   }
 }
