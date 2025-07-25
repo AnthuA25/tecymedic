@@ -1,5 +1,4 @@
 export class Patient {
-    id:number;
     name:string;
     last_name:string;
     document_number:string;
@@ -8,6 +7,5 @@ export class Patient {
     phone:string;
     code:string;
     username:string;
-    password:string;
     // TODO: Falta campos de auditoria
 }

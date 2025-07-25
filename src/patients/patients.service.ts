@@ -10,43 +10,42 @@ export class PatientsService {
 
   private readonly logger = new Logger(PatientsService.name);
 
-  constructor(@InjectModel(Patient.name) private patientModule: Model<PatientDocument>,) {}
+  constructor(@InjectModel(Patient.name) private patientModel: Model<PatientDocument>,) {}
 
-  async create(createPatientDto: CreatePatientDto) {
+  async create(createPatientDto: CreatePatientDto): Promise<string> {
     try {
-      const patientData = new this.patientModule({
+      const patientData = new this.patientModel({
         ...createPatientDto,
         code: this.generateCode(),
         password: await this.hashPassword(createPatientDto.password),
       });
       const result = await patientData.save();
-      return {
-        success: true,
-        message: 'Patient created successfully',
-        patient_code: result.code,
-      }
+      return result.code;
     } catch (error) {
       this.logger.error(error.message);
       throw new BadRequestException(error.message);
     }
   }
 
-  async findAll() {
+  async findAll(): Promise<Patient[]> {
     try {
-      return {
-        success: true,
-        patients: await this.patientModule.find().exec(),
-      }
+      return await this.patientModel.find().exec();
     } catch (error) {
       this.logger.error(error.message);
       throw new NotFoundException(error.message);
     }
   }
 
-  async findCode(code: string) {
+  async findCode(code: string): Promise<Patient> {
     try {
-      //TODO: Implementar validacion de busqueda vacia
-      return await this.patientModule.findOne({ code }).exec();
+      const result = await this.patientModel.findOne({ code }).exec();
+      
+      if (!result) {
+        //TODO: Crear exception personalizada.
+        throw new NotFoundException(`Patient code ${code} not found`);
+      }
+      
+      return result;
     } catch (error) {
       this.logger.error(error.message);
       throw new NotFoundException(error.message);
