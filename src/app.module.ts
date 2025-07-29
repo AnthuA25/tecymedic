@@ -3,6 +3,7 @@ import { PatientsModule } from './patients/patients.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DoctorsModule } from './doctors/doctors.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppointmentsModule } from './appointments/appointments.module';
 @Module({
   imports: [
     PatientsModule,
@@ -18,6 +19,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       autoLoadEntities: true, //* Carga automaticamente las entidades - solo local
       synchronize: true, //* Sincroniza en entorno de desarrollo, no usar en producción
     }),
+    AppointmentsModule,
   ],
   controllers: [],
   providers: [],
